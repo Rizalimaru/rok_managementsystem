@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 
 class CharacterResource extends Resource
 {
@@ -93,6 +94,13 @@ class CharacterResource extends Resource
                             ->dehydrateStateUsing(fn ($state) => (int) ($state * 1000000)),
                     ])->columns(4),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        // INI KUNCI AGAR LOADING CEPAT (DI BAWAH 1 DETIK)
+        return parent::getEloquentQuery()
+            ->with(['kingdom', 'gameAccount']); 
     }
 
     public static function table(Table $table): Table

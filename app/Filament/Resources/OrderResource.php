@@ -21,6 +21,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use Illuminate\Support\HtmlString;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrderResource extends Resource
 {
@@ -146,6 +147,12 @@ class OrderResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['customer', 'kingdom', 'items']); 
+    }
+
     public static function updateLineItem(Get $get, Set $set): void
     {
         // Ambil ID Kingdom dari parent form (naik 3 level karena ada di dalam Repeater -> Grid -> Section)
@@ -210,6 +217,13 @@ class OrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->query(
+                // TAMBAHKAN ->with(...) DISINI
+                Order::query()
+                    ->with(['customer', 'kingdom', 'items']) // Load relasi di awal
+                    ->latest()
+                    ->limit(5)
+            )
             ->columns([
                 TextColumn::make('id')->label('Order ID')->prefix('#')->sortable(),
                 TextColumn::make('customer.name')->searchable(),

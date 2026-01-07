@@ -4,33 +4,40 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use App\Models\Character;
+use Illuminate\Support\Facades\Cache; // Wajib Import ini
 
 class ResourceChart extends ChartWidget
 {
     protected static ?string $heading = 'Global Inventory (Semua Akun)';
-    
-    // Urutan tampilan di dashboard (biar di bawah kartu stats)
     protected static ?int $sort = 2; 
+    
+    // Matikan polling refresh otomatis
+    protected static ?string $pollingInterval = null;
 
     protected function getData(): array
     {
-        // Hitung total semua resource dari seluruh karakter
-        // Kita bagi 1.000.000 agar angkanya enak dilihat (Satuan M)
-        $totalFood = Character::sum('food') / 1000000;
-        $totalWood = Character::sum('wood') / 1000000;
-        $totalStone = Character::sum('stone') / 1000000;
-        $totalGold = Character::sum('gold') / 1000000;
+        // Cache data chart selama 10 menit (600 detik)
+        // Karena stok resource global tidak perlu realtime detik-an.
+        $data = Cache::remember('chart_resource_global', 600, function () {
+            return [
+                'food' => Character::sum('food') / 1000000,
+                'wood' => Character::sum('wood') / 1000000,
+                'stone' => Character::sum('stone') / 1000000,
+                'gold' => Character::sum('gold') / 1000000,
+            ];
+        });
 
         return [
             'datasets' => [
                 [
                     'label' => 'Stok Tersedia (Juta / M)',
-                    'data' => [$totalFood, $totalWood, $totalStone, $totalGold],
+                    // Ambil data dari variabel cache
+                    'data' => [$data['food'], $data['wood'], $data['stone'], $data['gold']],
                     'backgroundColor' => [
-                        '#22c55e', // Hijau (Food)
-                        '#eab308', // Kuning/Kayu (Wood)
-                        '#64748b', // Abu (Stone)
-                        '#f59e0b', // Emas (Gold)
+                        '#22c55e', // Hijau
+                        '#eab308', // Kuning
+                        '#64748b', // Abu
+                        '#f59e0b', // Emas
                     ],
                 ],
             ],
@@ -40,6 +47,6 @@ class ResourceChart extends ChartWidget
 
     protected function getType(): string
     {
-        return 'bar'; // Bisa ganti 'doughnut', 'line', atau 'pie'
+        return 'bar'; 
     }
 }
