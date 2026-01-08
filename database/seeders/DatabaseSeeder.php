@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin1@admin.com'], // Cek apakah email ini ada?
             [
                 'name' => 'Super Admin',
-                'password' => Hash::make('miaw0005'), // Password default
+                'password' => Hash::make('admin1'), // Password default
                 'email_verified_at' => now(),
             ]
         );
@@ -29,14 +29,12 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin2@admin.com'],
             [
-                'name' => 'Regular User',
-                'password' => Hash::make('miaw0005'),
+                'name' => 'Super Admin 2',
+                'password' => Hash::make('admin2'),
                 'email_verified_at' => now(),
             ]
         );
         
-        // Jika ingin membuat banyak dummy user, gunakan factory:
-        // User::factory(10)->create();
         
     }
 }
