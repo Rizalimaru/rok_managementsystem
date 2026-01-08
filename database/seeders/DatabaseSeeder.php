@@ -34,6 +34,16 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        User::firstOrCreate(
+            ['email' => 'admin3@admin.com'],
+            [
+                'name' => 'Super Admin 3',
+                'password' => Hash::make('admin3'),
+                'email_verified_at' => now(),
+            ]
+        );
+
         
         
     }
