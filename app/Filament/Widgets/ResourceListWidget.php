@@ -2,25 +2,24 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
-use Filament\Widgets\Concerns\InteractsWithPageFilters; // Import trait ini
+use Filament\Widgets\Widget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters; // Import trait
 use App\Models\Character;
 use Illuminate\Support\Facades\Cache;
 
-class ResourceChart extends ChartWidget
+class ResourceListWidget extends Widget
 {
     use InteractsWithPageFilters; // Aktifkan trait
 
-    protected static ?string $heading = 'Grafik Resource';
+    protected static string $view = 'filament.widgets.resource-list-widget';
     protected static ?int $sort = 2; 
     protected int | string | array $columnSpan = 1; 
-    protected static ?string $pollingInterval = null;
 
-    protected function getData(): array
+    protected function getViewData(): array
     {
         // Tangkap nilai KD dari filter global
         $activeFilter = $this->filters['kingdom_id'] ?? 'all';
-        $cacheKey = 'chart_resource_' . $activeFilter;
+        $cacheKey = 'list_resource_' . $activeFilter;
 
         $data = Cache::remember($cacheKey, 600, function () use ($activeFilter) {
             $query = Character::query();
@@ -38,19 +37,7 @@ class ResourceChart extends ChartWidget
         });
 
         return [
-            'datasets' => [
-                [
-                    'label' => 'Stok Tersedia (Juta / M)',
-                    'data' => [$data['food'], $data['wood'], $data['stone'], $data['gold']],
-                    'backgroundColor' => ['#22c55e', '#eab308', '#64748b', '#f59e0b'],
-                ],
-            ],
-            'labels' => ['Food', 'Wood', 'Stone', 'Gold'],
+            'resources' => $data,
         ];
-    }
-
-    protected function getType(): string
-    {
-        return 'bar'; 
     }
 }
